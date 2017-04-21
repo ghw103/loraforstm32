@@ -1,0 +1,82 @@
+Configuration	loraforstm32
+STM32CubeMX 	4.20.1
+Date	04/21/2017
+MCU	STM32L051K8Ux
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC	IN0	ADC_IN0	PA0
+ADC	IN1	ADC_IN1	PA1
+ADC	IN2	ADC_IN2	PA2
+ADC	IN3	ADC_IN3	PA3
+ADC	IN4	ADC_IN4	PA4
+I2C1	I2C	I2C1_SCL	PB6
+I2C1	I2C	I2C1_SDA	PB7
+SPI1	Full-Duplex Master	SPI1_MISO	PA6
+SPI1	Full-Duplex Master	SPI1_MOSI	PA7
+SPI1	Full-Duplex Master	SPI1_SCK	PA5
+SYS	Serial_Wire	SYS_SWCLK	PA14
+SYS	Serial_Wire	SYS_SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+USART1	Asynchronous	USART1_RX	PA10
+USART1	Asynchronous	USART1_TX	PA9
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+2	PC14-OSC32_IN	GPIO_Output	RF_TX
+3	PC15-OSC32_OUT	GPIO_Output	RF_RX
+6	PA0	ADC_IN0	
+7	PA1	ADC_IN1	
+8	PA2	ADC_IN2	
+9	PA3	ADC_IN3	
+10	PA4	ADC_IN4	
+11	PA5	SPI1_SCK	
+12	PA6	SPI1_MISO	
+13	PA7	SPI1_MOSI	
+14	PB0	GPIO_Output	LED1
+15	PB1	GPIO_Output	LED2
+16	PB2	GPIO_Output	LED0
+18	PA8	GPIO_Output	
+19	PA9	USART1_TX	
+20	PA10	USART1_RX	
+21	PA11	GPIO_Output	RES
+22	PA12	GPIO_Input	DIO0
+23	PA13	SYS_SWDIO	
+24	PA14	SYS_SWCLK	
+25	PA15	GPIO_Input	DIO1
+26	PB3	GPIO_Input	DIO2
+27	PB4	GPIO_Input	DIO3
+28	PB5	GPIO_Input	DIO4
+29	PB6	I2C1_SCL	
+30	PB7	I2C1_SDA	
+32	PB8	GPIO_Output	SPI_CS
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : loraforstm32
+Project Folder : C:\Users\ghw\Desktop\loraforstm32
+Toolchain / IDE : MDK-ARM V5
+Firmware Package Name and Version : STM32Cube FW_L0 V1.8.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy all used libraries into the project folder
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : Yes
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : Balanced Size/Speed
+
+
+
+
+
+
