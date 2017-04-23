@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>0</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -335,7 +335,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32L051xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32L0xx_HAL_Driver/Inc;../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L0xx/Include;../Drivers/CMSIS/Include;..\HARDWARE\OLED;..\HARDWARE\BSP</IncludePath>
+              <IncludePath>../Inc;          ../Drivers/STM32L0xx_HAL_Driver/Inc;          ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy;          ../Drivers/CMSIS/Device/ST/STM32L0xx/Include;          ../Drivers/CMSIS/Include;          ..\Drivers\HARDWARE\OLED;          ..\Drivers\HARDWARE\BSP;          ..\Drivers\HARDWARE\RF</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -377,16 +377,6 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Drivers/CMSIS</GroupName>
-          <Files>
-            <File>
-              <FileName>system_stm32l0xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/system_stm32l0xx.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
@@ -410,11 +400,6 @@
               <FilePath>../Src/i2c.c</FilePath>
             </File>
             <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/spi.c</FilePath>
-            </File>
-            <File>
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/usart.c</FilePath>
@@ -429,10 +414,83 @@
               <FileType>1</FileType>
               <FilePath>../Src/stm32l0xx_hal_msp.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Drivers/hardware/RF</GroupName>
+          <Files>
             <File>
-              <FileName>dma.c</FileName>
+              <FileName>radio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../Src/dma.c</FilePath>
+              <FilePath>..\Drivers\HARDWARE\RF\radio.c</FilePath>
+            </File>
+            <File>
+              <FileName>SX1276.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HARDWARE\RF\SX1276.C</FilePath>
+            </File>
+            <File>
+              <FileName>sx1276-Fsk.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HARDWARE\RF\sx1276-Fsk.c</FilePath>
+            </File>
+            <File>
+              <FileName>sx1276-FskMisc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HARDWARE\RF\sx1276-FskMisc.c</FilePath>
+            </File>
+            <File>
+              <FileName>sx1276-Hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HARDWARE\RF\sx1276-Hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>sx1276-LoRa.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HARDWARE\RF\sx1276-LoRa.c</FilePath>
+            </File>
+            <File>
+              <FileName>sx1276-LoRaMisc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HARDWARE\RF\sx1276-LoRaMisc.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Drivers/hardware/BSP</GroupName>
+          <Files>
+            <File>
+              <FileName>bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HARDWARE\BSP\bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>oled.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HARDWARE\OLED\oled.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>contiki</GroupName>
+        </Group>
+        <Group>
+          <GroupName>Application/MDK-ARM</GroupName>
+          <Files>
+            <File>
+              <FileName>startup_stm32l051xx.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>startup_stm32l051xx.s</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Drivers/CMSIS</GroupName>
+          <Files>
+            <File>
+              <FileName>system_stm32l0xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/system_stm32l0xx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -510,11 +568,6 @@
               <FilePath>../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l0xx_hal_spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_spi.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32l0xx_hal_tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_tim.c</FilePath>
@@ -538,31 +591,6 @@
               <FileName>stm32l0xx_hal_rcc.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Application/MDK-ARM</GroupName>
-          <Files>
-            <File>
-              <FileName>startup_stm32l051xx.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>startup_stm32l051xx.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Drivers/hardware</GroupName>
-          <Files>
-            <File>
-              <FileName>oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\OLED\oled.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\BSP\bsp.c</FilePath>
             </File>
           </Files>
         </Group>

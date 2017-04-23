@@ -34,22 +34,30 @@
 #include "main.h"
 #include "stm32l0xx_hal.h"
 #include "adc.h"
-#include "dma.h"
 #include "i2c.h"
-#include "spi.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+////////////BSP/////////////
 #include "oled.h"
 #include "bsp.h"
+#include "string.h"
+//////////RF////////////////
+#include "radio.h"
+#include "platform.h"
+#include "sx1276.h"
+#include "sx1276-Fsk.h"
+#include "sx1276-Hal.h"
+#include "sx1276-LoRa.h"
+////////////////////////////
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+#define oled
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,18 +66,30 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+#define TRSIZE                                BUFFER_SIZE-1
+#define BUFFER_SIZE                                 6 // Define the payload size here
+static uint16_t BufferSize = BUFFER_SIZE;			// RF buffer size
+static uint8_t Sendbuffer[BUFFER_SIZE]={ 0, 1, 2, 3, 4, 0 };					// RF buffer
+static uint8_t Ascbuffer[BUFFER_SIZE]={ 0, 1, 2, 3, 4, 0};
+
+//static uint8_t EnableMaster = true; 				// Master/Slave selection
+
+tRadioDriver *Radio = NULL;
+
+
 
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
+void OnMaster( void );
+void OnSlave( void );
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  uint8_t test=0,RISS=0 ;
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -82,41 +102,81 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_ADC_Init();
-  MX_I2C1_Init();
-  MX_SPI1_Init();
   MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
+	
+#ifdef oled
+  MX_I2C1_Init();
 		OLED_Init();			//初始化OLED  
-		OLED_ShowCHinese(0,0,0);//中
-		OLED_ShowCHinese(18,0,1);//景
-		OLED_ShowCHinese(36,0,2);//园
-		OLED_ShowCHinese(54,0,3);//电
-		OLED_ShowCHinese(72,0,4);//子
-		OLED_ShowCHinese(90,0,5);//科
-		OLED_ShowCHinese(108,0,6);//技
+		OLED_ShowString(0,0,"oledok",16);
+		HAL_Delay(1000);
+		OLED_Clear();
+#endif
+
+		SX1276Read(0x42,&test);//??0x12
+ if(test!=0x12)
+ {
+#ifdef oled
+	 	   OLED_ShowString(0,0,"ERROR1",16);
+#endif	 
+	 ledR=0;
+		 while(1)
+		 {
+		 }
+ }
+  
+ SX1276Read(0x44,&test);//??0x2D
+  if(test!=0x2D)
+ {	
+#ifdef oled	 
+	 OLED_ShowString(0,0,"ERROR2",16);
+#endif
+	 ledR=0;
+		 while(1)
+		 {
+		 }
+ }
+	Radio = RadioDriverInit( ); 
+    Radio->Init( );
+    Radio->StartRx( );
+#ifdef oled	 
+		OLED_ShowString(0,0,"sx1278ok",16);
+  OLED_Clear();
+ 	OLED_ShowString(0,0,"mtx:",16);
+								OLED_ShowNum(35,0,Sendbuffer[TRSIZE],3,16);
+								OLED_ShowString(65,0,"asc:",16);
+								OLED_ShowNum(100,0,Ascbuffer[TRSIZE],3,16);
+								OLED_ShowString(0,2,"riss:",16);
+#endif
+	ledB=0;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+ 
   while (1)
   {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-		HAL_Delay(100);
-//		ledG=!ledG;
-//		ledR=!ledR;
-		ledB=!ledB;
-		
-		
+		#ifdef oled	
+		OnMaster();		
+		HAL_Delay(1100);
+		OLED_ShowNum(60,2,RISS,3,16);
+		#else
+		OnSlave();
+		HAL_Delay(50);
+		#endif
 
-
-  }
+  RISS=(uint8_t)SX1276LoRaGetPacketRssi();
+	
+		
   /* USER CODE END 3 */
 
+	}
 }
 
 /** System Clock Configuration
@@ -178,7 +238,106 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+ uint8_t RFWrite(uint8_t* buff, uint8_t size);
+uint8_t RFRead(uint8_t* buff );
+void OnMaster( void )
+{
+	uint8_t  buff[10]={0};
+	uint8_t i,error = 0;
+	RFWrite(Sendbuffer,BufferSize);
 
+	if( RFRead(buff) > 0 )
+	{
+		for (i=0, error=0; i<TRSIZE; i++ )
+            {
+                if (buff[i] != Ascbuffer[i])     { error=2; break; }
+								else error=1;
+            }
+						if (error==1)    
+							{ 
+								OLED_ShowNum(100,0,buff[TRSIZE],3,16);
+								 ledB=!ledB;
+							
+								
+							}
+				
+	}
+	OLED_ShowNum(35,0,Sendbuffer[TRSIZE],3,16); 
+	
+ 		Sendbuffer[5]++;
+}								
+
+
+void OnSlave( void )
+{
+	    uint8_t error = 0;
+    uint8_t i,rxcan;
+uint8_t  buff[10]={0};   
+        if( RFRead(buff) > 0 )
+        {
+            for (i=0, error=0; i<TRSIZE; i++ )
+            {
+                if (Sendbuffer[i] != buff[i])     { error=2; break; }
+								else error=1;
+            }
+												if (error==1)    
+							{ 
+                // Indicates on a LED that the received frame is a PING
+				
+								 RFWrite( Ascbuffer, BufferSize );
+										rxcan++;
+								Ascbuffer[TRSIZE]++;
+							#ifdef oled
+								OLED_ShowString(0,2,"mtx:",16);
+								OLED_ShowNum(35,2,Sendbuffer[TRSIZE],3,16);
+								OLED_ShowString(65,2,"asc:",16);
+								OLED_ShowNum(100,2,Ascbuffer[TRSIZE],3,16);
+							#endif	
+							
+                ledB=!ledB;
+            }
+        }
+}
+
+
+ uint8_t RFWrite(uint8_t* buff, uint8_t size)
+{
+  //  Radio->LoRaSetRFFrequency( freq );// 478750000   DownChannel[10]
+    Radio->SetTxPacket( buff, size);
+    while( Radio->Process( ) != RF_TX_DONE );
+    
+    return size;
+}
+uint8_t RFRead(uint8_t* buff )
+{
+  uint32_t result;
+ 	uint16_t RxLen;
+
+// Radio->LoRaSetRFFrequency( freq ); 
+ 	
+ 	Radio->StartRx( );
+
+	 while( 1 )
+	 {
+		result = Radio->Process( );///SX1276LoRaProcess
+		 if( (result == RF_RX_DONE) || (result == RF_RX_TIMEOUT) )
+		 {
+			 break;
+		 }
+	 }
+
+		 if( result == RF_RX_DONE )//RFBuffer
+		 {
+			 Radio->GetRxPacket( buff, &RxLen );
+			 
+			 return RxLen;
+		 }
+		else
+		 {
+			return 0;
+		 }
+
+}
 /* USER CODE END 4 */
 
 /**

@@ -39,6 +39,178 @@
 
 /* USER CODE BEGIN 0 */
 
+/******************************************************************************
+           加入以下代码，支持printf函数，而不需要选择use MicroLIB
+******************************************************************************/
+
+//#if Printf_Support_En == 1
+
+//#ifdef __ICCARM__  //IAR支持
+
+///**
+//  *****************************************************************************
+//  * @Name   : 重定义out_char函数
+//  *
+//  * @Brief  : none
+//  *
+//  * @Input  : ch：发送字符
+//  *
+//  * @Output : none
+//  *
+//  * @Return : none
+//  *****************************************************************************
+//**/
+//int putchar(int c)
+//{
+//	uint16_t timeout = 0;
+//	
+//	
+//	USART_SendData(USART1, (uint16_t)c);  //发送数据
+//	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)  //循环发送，直到发送完毕
+//	{
+//		timeout++;
+//		if (timeout > 800)
+//		{
+//			timeout = 0;
+//			break;
+//		}
+//	}
+//	
+//	return c;
+//}
+
+
+//#else  //MDK支持
+
+//#pragma import(__use_no_semihosting)
+////
+////标准库需要的支持函数
+////
+//struct __FILE 
+//{ 
+//	int handle; 
+
+//};
+///* FILE is typedef’ d in stdio.h. */
+//FILE __stdout;
+////
+////定义_sys_exit()以避免使用半主机模式
+////
+//_sys_exit(int x)
+//{
+//	x = x;
+//}
+
+///**
+//  *****************************************************************************
+//  * @Name   : 重定义fputc函数
+//  *
+//  * @Brief  : none
+//  *
+//  * @Input  : ch：发送字符
+//  *           *f: FILE指针
+//  *
+//  * @Output : none
+//  *
+//  * @Return : none
+//  *****************************************************************************
+//**/
+//int fputc(int ch, FILE *f)
+//{
+//	uint16_t timeout = 0;
+//	
+//	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)  //循环发送，直到发送完毕
+//	{
+//		timeout++;
+//		if (timeout > 800)
+//		{
+//			timeout = 0;
+//			break;
+//		}
+//	}
+//	USART_SendData(USART1, (uint16_t)ch);  //发送数据
+//	
+//	return ch;
+//}
+
+//#endif
+
+//#else
+
+///**
+//  *****************************************************************************
+//  * @Name   : 串口发送一个字节
+//  *
+//  * @Brief  : none
+//  *
+//  * @Input  : byte：发送字符
+//  *
+//  * @Output : none
+//  *
+//  * @Return : none
+//  *****************************************************************************
+//**/
+//void uart_sendbyte(uint8_t byte)
+//{
+//	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+//	USART_SendData(USART1, byte);
+//	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+//}
+
+///**
+//  *****************************************************************************
+//  * @Name   : 串口发送字符串
+//  *
+//  * @Brief  : none
+//  *
+//  * @Input  : *str：发送字符串
+//  *
+//  * @Output : none
+//  *
+//  * @Return : none
+//  *****************************************************************************
+//**/
+//void uart_senfstring(uint8_t * str)
+//{
+//	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+//	while (*str != '\0')
+//	{
+//		USART_SendData(USART1, *(str++));
+//		while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+//	}
+//}
+
+///**
+//  *****************************************************************************
+//  * @Name   : 串口格式化打印
+//  *
+//  * @Brief  : none
+//  *
+//  * @Input  : *format：格式化字符串
+//  *           ...:     变长参数
+//  *
+//  * @Output : none
+//  *
+//  * @Return : none
+//  *****************************************************************************
+//**/
+//#include <stdarg.h>
+//void uart_printf(char *format, ...)
+//{
+//	va_list ap;
+//	char string[512];
+//	
+//	va_start(ap, format);
+//	vsprintf(string, format, ap);
+//	va_end(ap);
+//	
+//	uart_senfstring((uint8_t *)string);
+//}
+
+//#endif
+
+/*************************************   end   *******************************/
+
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;

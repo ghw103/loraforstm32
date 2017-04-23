@@ -1,6 +1,6 @@
 Configuration	loraforstm32
 STM32CubeMX 	4.20.1
-Date	04/21/2017
+Date	04/20/2017
 MCU	STM32L051K8Ux
 
 
@@ -59,7 +59,7 @@ SOFTWARE PROJECT
 
 Project Settings : 
 Project Name : loraforstm32
-Project Folder : C:\Users\ghw\Desktop\loraforstm32
+Project Folder : C:\Users\GHW\Desktop\loraforstm32
 Toolchain / IDE : MDK-ARM V5
 Firmware Package Name and Version : STM32Cube FW_L0 V1.8.0
 
