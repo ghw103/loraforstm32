@@ -34,7 +34,7 @@
  */
 uint8_t SX1276Regs[0x70];
 
-static bool LoRaOn = false;
+static bool LoRaOn = true;
 static bool LoRaOnState = false;
 
 void SX1276Init( void )
@@ -301,4 +301,23 @@ uint32_t SX1276Process( void )
     }
 }
 
+//static void RFInit()  
+//{  
+//    Radio->LoRaSetOpMode( RFLR_OPMODE_STANDBY );  
+//    // set the RF settings  
+//    Radio->LoRaSetPa20dBm( false );  
+//    Radio->LoRaSetRFPower( 5 );  
+//    Radio->LoRaSetSpreadingFactor( 7 ); // SF6 only operates in implicit header mode.  
+//    Radio->LoRaSetErrorCoding( 1 );  
+//    Radio->LoRaSetPacketCrcOn( 0 );  
+//    Radio->LoRaSetSignalBandwidth( 7 );  
+//    Radio->LoRaSetImplicitHeaderOn( 0 );    
+//    Radio->LoRaSetSymbTimeout( 0x3FF );  
+//    Radio->LoRaSetPayloadLength( 128 );  
+//    Radio->LoRaSetLowDatarateOptimize( true );  
+//    Radio->LoRaSetFreqHopOn(false);      
+//    Radio->LoRaSetRxSingleOn(true);  
+//    Radio->LoRaSetPreambleLength( 6 );   
+//    Radio->LoRaSetOpMode( RFLR_OPMODE_STANDBY );  
+//}
 #endif // USE_SX1276_RADIO

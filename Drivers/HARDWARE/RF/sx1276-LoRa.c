@@ -96,23 +96,23 @@ const int32_t HoppingFrequencies[] =
     911000000,
 };
 
-// Default settings
+// Default settings 空速204bps
 tLoRaSettings LoRaSettings =
 {
-    428000000,        // RFFrequency 收发频率
+    460000000,        // RFFrequency
     20,               // Power
-    3,                // SignalBw [0: 7.8kHz, 1: 10.4 kHz, 2: 15.6 kHz, 3: 20.8 kHz, 4: 31.2 kHz,
-                      // 5: 41.6 kHz, 6: 62.5 kHz, 7: 125 kHz, 8: 250 kHz, 9: 500 kHz, other: Reserved]带宽
-    7,                // SpreadingFactor [6: 64, 7: 128, 8: 256, 9: 512, 10: 1024, 11: 2048, 12: 4096  chips]扩频因子
-    2,                // ErrorCoding [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]循环纠错编码
-    true,             // CrcOn [0: OFF, 1: ON]CRC校验
-    false,            // ImplicitHeaderOn [0: OFF, 1: ON]序头模式
-    1,                // RxSingleOn [0: Continuous, 1 Single]接收模式中的single模式开关? 0代表continue模式
-    0,                // FreqHopOn [0: OFF, 1: ON] 跳频开关
-    6,                // HopPeriod Hops every frequency hopping period symbols跳频周期
-    1000,              // TxPacketTimeout发送超时时间
-    1000,              // RxPacketTimeout 接收超时时间
-    10,              // PayloadLength (used for implicit header mode)负载数据长度
+    5,                // SignalBw [0: 7.8kHz, 1: 10.4 kHz, 2: 15.6 kHz, 3: 20.8 kHz, 4: 31.2 kHz,
+                      // 5: 41.6 kHz, 6: 62.5 kHz, 7: 125 kHz, 8: 250 kHz, 9: 500 kHz, other: Reserved]
+    10,                // SpreadingFactor [6: 64, 7: 128, 8: 256, 9: 512, 10: 1024, 11: 2048, 12: 4096  chips]
+    1,                // ErrorCoding [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]
+    true,             // CrcOn [0: OFF, 1: ON]
+    false,            // ImplicitHeaderOn [0: OFF, 1: ON]
+    1,                // RxSingleOn [0: Continuous, 1 Single]
+    0,                // FreqHopOn [0: OFF, 1: ON]
+    4,                // HopPeriod Hops every frequency hopping period symbols
+    1000,              // TxPacketTimeout
+    1000,              // RxPacketTimeout
+    16,              // PayloadLength (used for implicit header mode)
 };
 
 /*!
@@ -172,37 +172,37 @@ void SX1276LoRaInit( void )
     SX1276LoRaSetPayloadLength( LoRaSettings.PayloadLength );
     SX1276LoRaSetLowDatarateOptimize( true );
 
-//#if( ( MODULE_SX1276RF1IAS == 1 ) || ( MODULE_SX1276RF1KAS == 1 ) )
-//    if( LoRaSettings.RFFrequency > 860000000 )
-//    {
-//        SX1276LoRaSetPAOutput( RFLR_PACONFIG_PASELECT_RFO );
-//        SX1276LoRaSetPa20dBm( false );
-//        LoRaSettings.Power = 14;
-//        SX1276LoRaSetRFPower( LoRaSettings.Power );
-//    }
-//    else
-//    {
+#if ( ( MODULE_SX1276RF1IAS == 1 ) || ( MODULE_SX1276RF1KAS == 1 ) )
+    if( LoRaSettings.RFFrequency > 860000000 )
+    {
+        SX1276LoRaSetPAOutput( RFLR_PACONFIG_PASELECT_RFO );
+        SX1276LoRaSetPa20dBm( false );
+        LoRaSettings.Power = 14;
+        SX1276LoRaSetRFPower( LoRaSettings.Power );
+    }
+    else
+    {
         SX1276LoRaSetPAOutput( RFLR_PACONFIG_PASELECT_PABOOST );
         SX1276LoRaSetPa20dBm( true );
         LoRaSettings.Power = 20;
         SX1276LoRaSetRFPower( LoRaSettings.Power );
-//    } 
-//#elif( MODULE_SX1276RF1JAS == 1 )
-//    if( LoRaSettings.RFFrequency > 860000000 )
-//    {
-//        SX1276LoRaSetPAOutput( RFLR_PACONFIG_PASELECT_PABOOST );
-//        SX1276LoRaSetPa20dBm( true );
-//        LoRaSettings.Power = 20;
-//        SX1276LoRaSetRFPower( LoRaSettings.Power );
-//    }
-//    else
-//    {
-//        SX1276LoRaSetPAOutput( RFLR_PACONFIG_PASELECT_RFO );
-//        SX1276LoRaSetPa20dBm( false );
-//        LoRaSettings.Power = 14;
-//        SX1276LoRaSetRFPower( LoRaSettings.Power );
-//    } 
-//#endif
+    } 
+#elif ( MODULE_SX1276RF1JAS == 1 )
+    if( LoRaSettings.RFFrequency > 860000000 )
+    {
+        SX1276LoRaSetPAOutput( RFLR_PACONFIG_PASELECT_PABOOST );
+        SX1276LoRaSetPa20dBm( true );
+        LoRaSettings.Power = 20;
+        SX1276LoRaSetRFPower( LoRaSettings.Power );
+    }
+    else
+    {
+        SX1276LoRaSetPAOutput( RFLR_PACONFIG_PASELECT_RFO );
+        SX1276LoRaSetPa20dBm( false );
+        LoRaSettings.Power = 14;
+        SX1276LoRaSetRFPower( LoRaSettings.Power );
+    } 
+#endif
 
     SX1276LoRaSetOpMode( RFLR_OPMODE_STANDBY );
 }

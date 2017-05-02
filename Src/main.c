@@ -34,7 +34,9 @@
 #include "main.h"
 #include "stm32l0xx_hal.h"
 #include "adc.h"
+#include "dma.h"
 #include "i2c.h"
+#include "spi.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -66,11 +68,11 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-#define TRSIZE                                BUFFER_SIZE-1
-#define BUFFER_SIZE                                 6 // Define the payload size here
+static uint16_t TRSIZE  =   13;//BUFFER_SIZE-3
+#define BUFFER_SIZE                                 16 // Define the payload size here
 static uint16_t BufferSize = BUFFER_SIZE;			// RF buffer size
-static uint8_t Sendbuffer[BUFFER_SIZE]={ 0, 1, 2, 3, 4, 0 };					// RF buffer
-static uint8_t Ascbuffer[BUFFER_SIZE]={ 0, 1, 2, 3, 4, 0};
+static uint8_t Sendbuffer[BUFFER_SIZE]={ 0, 1, 2, 3, 4, 5 ,6,7,8,9,10,11,12,0,0,0};					// RF buffer
+static uint8_t Ascbuffer[BUFFER_SIZE]={ 0, 1, 2, 3, 4, 5 ,6,7,8,9,10,11,12,0,0,0};
 
 //static uint8_t EnableMaster = true; 				// Master/Slave selection
 
@@ -102,8 +104,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC_Init();
   MX_USART1_UART_Init();
+  MX_SPI1_Init();
 
   /* USER CODE BEGIN 2 */
 	
@@ -144,11 +148,15 @@ int main(void)
 #ifdef oled	 
 		OLED_ShowString(0,0,"sx1278ok",16);
   OLED_Clear();
- 	OLED_ShowString(0,0,"mtx:",16);
-								OLED_ShowNum(35,0,Sendbuffer[TRSIZE],3,16);
+								OLED_ShowString(0,0,"mtx:",16);
+								OLED_ShowNum(35,0,Sendbuffer[(TRSIZE+1)],3,16);
 								OLED_ShowString(65,0,"asc:",16);
-								OLED_ShowNum(100,0,Ascbuffer[TRSIZE],3,16);
+								OLED_ShowNum(100,0,Sendbuffer[TRSIZE],3,16);
 								OLED_ShowString(0,2,"riss:",16);
+ 								OLED_ShowString(45,2,"s",16);
+ 								OLED_ShowString(90,2,"m",16);
+ 
+
 #endif
 	ledB=0;
 
@@ -163,20 +171,22 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 		#ifdef oled	
-		OnMaster();		
-		HAL_Delay(1100);
+			OnSlave();
+//		HAL_Delay(50);
+		
 		OLED_ShowNum(60,2,RISS,3,16);
 		#else
-		OnSlave();
-		HAL_Delay(50);
+		
+		OnMaster();	
+		HAL_Delay(500);
+		Sendbuffer[(TRSIZE+2)]=RISS;
 		#endif
 
   RISS=(uint8_t)SX1276LoRaGetPacketRssi();
 	
-		
+	}	
   /* USER CODE END 3 */
 
-	}
 }
 
 /** System Clock Configuration
@@ -242,7 +252,7 @@ void SystemClock_Config(void)
 uint8_t RFRead(uint8_t* buff );
 void OnMaster( void )
 {
-	uint8_t  buff[10]={0};
+	uint8_t  buff[BUFFER_SIZE]={0};
 	uint8_t i,error = 0;
 	RFWrite(Sendbuffer,BufferSize);
 
@@ -255,24 +265,24 @@ void OnMaster( void )
             }
 						if (error==1)    
 							{ 
-								OLED_ShowNum(100,0,buff[TRSIZE],3,16);
+//								OLED_ShowNum(105,0,buff[TRSIZE],3,16);
 								 ledB=!ledB;
-							
+							Sendbuffer[TRSIZE]++;
 								
 							}
 				
 	}
-	OLED_ShowNum(35,0,Sendbuffer[TRSIZE],3,16); 
-	
- 		Sendbuffer[5]++;
+//	OLED_ShowNum(35,0,Sendbuffer[TRSIZE],3,16); 
+	ledR=!ledR;
+ 		Sendbuffer[(TRSIZE+1)]++;
 }								
 
 
 void OnSlave( void )
 {
 	    uint8_t error = 0;
-    uint8_t i,rxcan;
-uint8_t  buff[10]={0};   
+    uint8_t i;
+uint8_t  buff[BUFFER_SIZE]={0};   
         if( RFRead(buff) > 0 )
         {
             for (i=0, error=0; i<TRSIZE; i++ )
@@ -280,18 +290,17 @@ uint8_t  buff[10]={0};
                 if (Sendbuffer[i] != buff[i])     { error=2; break; }
 								else error=1;
             }
-												if (error==1)    
+							if (error==1)    
 							{ 
                 // Indicates on a LED that the received frame is a PING
 				
 								 RFWrite( Ascbuffer, BufferSize );
-										rxcan++;
-								Ascbuffer[TRSIZE]++;
 							#ifdef oled
-								OLED_ShowString(0,2,"mtx:",16);
-								OLED_ShowNum(35,2,Sendbuffer[TRSIZE],3,16);
-								OLED_ShowString(65,2,"asc:",16);
-								OLED_ShowNum(100,2,Ascbuffer[TRSIZE],3,16);
+
+								OLED_ShowNum(35,0,buff[(TRSIZE+1)],3,16);
+
+								OLED_ShowNum(100,0,buff[TRSIZE],3,16);
+								OLED_ShowNum(105,2,buff[(TRSIZE+2)],3,16);
 							#endif	
 							
                 ledB=!ledB;
@@ -305,7 +314,7 @@ uint8_t  buff[10]={0};
   //  Radio->LoRaSetRFFrequency( freq );// 478750000   DownChannel[10]
     Radio->SetTxPacket( buff, size);
     while( Radio->Process( ) != RF_TX_DONE );
-    
+     	Radio->StartRx( );
     return size;
 }
 uint8_t RFRead(uint8_t* buff )
@@ -315,7 +324,7 @@ uint8_t RFRead(uint8_t* buff )
 
 // Radio->LoRaSetRFFrequency( freq ); 
  	
- 	Radio->StartRx( );
+
 
 	 while( 1 )
 	 {
@@ -338,6 +347,26 @@ uint8_t RFRead(uint8_t* buff )
 		 }
 
 }
+
+//static void RFInit()  
+//{  
+//    Radio->LoRaSetOpMode( RFLR_OPMODE_STANDBY );  
+//    // set the RF settings  
+//    Radio->LoRaSetPa20dBm( false );  
+//    Radio->LoRaSetRFPower( 5 );  
+//    Radio->LoRaSetSpreadingFactor( 7 ); // SF6 only operates in implicit header mode.  
+//    Radio->LoRaSetErrorCoding( 1 );  
+//    Radio->LoRaSetPacketCrcOn( 0 );  
+//    Radio->LoRaSetSignalBandwidth( 7 );  
+//    Radio->LoRaSetImplicitHeaderOn( 0 );    
+//    Radio->LoRaSetSymbTimeout( 0x3FF );  
+//    Radio->LoRaSetPayloadLength( 128 );  
+//    Radio->LoRaSetLowDatarateOptimize( true );  
+//    Radio->LoRaSetFreqHopOn(false);      
+//    Radio->LoRaSetRxSingleOn(true);  
+//    Radio->LoRaSetPreambleLength( 6 );   
+//    Radio->LoRaSetOpMode( RFLR_OPMODE_STANDBY );  
+//}  
 /* USER CODE END 4 */
 
 /**
